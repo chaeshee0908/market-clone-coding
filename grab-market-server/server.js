@@ -10,7 +10,7 @@ app.use(cors());    // 모든 브라우저에서 우리의 서버에 요청할 �
 app.get("/products", (req, res) => {
     models.Product.findAll({
         order : [['createdAt', 'DESC']],
-        attributes : ['id', 'name', 'price', 'createdAt', 'seller']
+        attributes : ['id', 'name', 'price', 'createdAt', 'seller', 'imageUrl']
     }).then((result)=>{
         console.log("PRODUCTS : ",result);
         res.send({
@@ -25,6 +25,9 @@ app.get("/products", (req, res) => {
 app.post("/products", (req, res) => {
     const body = req.body;
     const {name, description, price, seller} = body;
+    if (!name || !description || !price || !seller) {
+        res.send("모든 필드를 입력해주세요");
+    }
     models.Product.create({
         name,   // key와 value가 같으면 생략 가능 (원래는 name : name,)
         description,
