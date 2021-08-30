@@ -2,10 +2,22 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const models = require('./models');
+const multer = require('multer');
+const upload = multer({
+    storage: multer.diskStorage({
+        destination : function(req, file, cb){
+            cb(null, 'uploads/');
+        },
+        filename: function(req, file, cb){
+            cb(null, file.originalname);
+        },
+    })
+});
 const port = 8080;
 
 app.use(express.json());    // json 형식의 데이터를 처리할 수 있게 설정하는 코드
 app.use(cors());    // 모든 브라우저에서 우리의 서버에 요청할 수 있음
+app.use('/uploads', express.static('uploads'));     // 우리가 입력한 이미지 경로로 보여주도록 하는 명령
 
 app.get("/products", (req, res) => {
     models.Product.findAll({
@@ -61,6 +73,16 @@ app.get("/products/:id", (req, res) => {
         res.send("상품 조회에 에러가 발생했습니다.");
     })
 })
+
+// 파일을 하나만 보냈을 때 사용 single()
+// 'image'는 상품 key
+app.post('/image',upload.single('image'),(req, res) => {
+    const file = req.file;
+    console.log(file);
+    res.send({
+        imageUrl : file.path
+    })
+})   
 
 app.listen(port, () => {
     console.log('그랩의 쇼핑몰 서버가 돌아가고 있습니다');
