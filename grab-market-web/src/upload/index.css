@@ -45,3 +45,11 @@
     border: none;
     margin-top: 16px;
 }
+
+#upload-img {
+    width: 200px;
+    height: 200px;
+    margin: 16px;
+    /* 가로세로 비율 맞춰주면서 설정 해줌 */
+    object-fit: contain;    
+}
