@@ -4,14 +4,17 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import {API_URL} from '../config/constants.js';
+import {Carousel} from 'antd';
 
 dayjs.extend(relativeTime);
 
 function MainPage(){
     const [products, setProducts] = React.useState([]);
+    const [banners, setBanners] = React.useState([]);
     React.useEffect(
         function(){
-            axios.get('http://localhost:8080/products')
+            axios.get(`${API_URL}/products`)
             .then(function(result){
                 const products = result.data.products;
                 setProducts(products);
@@ -19,21 +22,42 @@ function MainPage(){
             .catch(function(error){
                 console.error('에러 발생 : ',error);
             });
+
+            axios.get(`${API_URL}/banners`).then((result) => {
+                const banners = result.data.banners;
+                setBanners(banners);
+            }).catch((error) => {
+                console.error("에러 발생 : ",error);
+            })
         },[]);
 
     return (
         <div>
-            <div id="banner">
-                <img src="images/banners/banner1.png" />
-            </div>
-            <h1>판매되는 상품들</h1>
+            {/* 배너 넘어가는 동작 구현 */}
+            <Carousel autoplay autoplaySpeed={3000}>
+                {
+                    banners.map((banner, index) => {
+                        return (
+                            <Link to={banner.href}>
+                                <div id="banner">
+                                    <img src={`${API_URL}/${banner.imageUrl}`} />
+                                </div>
+                            </Link>
+                        );
+                    })
+                }  
+            </Carousel>
+            <h1 id="product-headline">판매되는 상품들</h1>
             <div id="product-list">
                 {products.map(function(product, index){
                     return (
                         <div className="product-card">
+                            {
+                                product.soldout === 1 && <div className="product-blur" />
+                            }
                             <Link className="product-link" to={`/products/${product.id}`}>
                                 <div>
-                                    <img className="product-img" src={product.imageUrl}/>
+                                    <img className="product-img" src={`${API_URL}/${product.imageUrl}`}/>
                                 </div>
                                 <div className="product-contents">
                                     <span className="product-name">{product.name}</span>
